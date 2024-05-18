@@ -1,0 +1,41 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+<div class="my-4">
+    <h2 class="mb-4">{{ module.name }} - {{ module.type }}</h2>
+    <canvas id="moduleChart" width="400" height="200"></canvas>
+    <script>
+        const timestamps = {{ timestamps|raw }};
+        const values = {{ values|raw }};
+
+        const ctx = document.getElementById('moduleChart').getContext('2d');
+        const moduleChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: timestamps,
+                datasets: [{
+                    label: 'Module Data',
+                    data: values,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'minute'
+                        },
+                       
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</div>
+{% endblock %}
