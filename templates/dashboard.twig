@@ -11,7 +11,10 @@
                 <th>Type</th>
                 <th>Status</th>
                 <th>Current Value</th>
-                <th>Operating Time</th>
+                <th>
+                    <span id="operatingTimeLabel">Operating Time (Seconds)</span>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleOperatingTimeDisplay()">sec/hours</button>
+                </th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -30,11 +33,33 @@
                     {% endif %}
                 </td>
                 <td>{{ module.value }}</td>
-                <td>{{ module.operating_time }}</td>
+                <td id="operatingTime_{{ module.id }}">{{ module.operating_time }}</td> 
                 <td><a href="module.php?id={{ module.id }}" class="btn btn-info btn-sm">View</a></td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+<script>
+    function toggleOperatingTimeDisplay() {
+        var label = document.getElementById('operatingTimeLabel');
+        var currentDisplay = label.textContent;
+
+        {% for module in modules %}
+            var timeCell = document.getElementById('operatingTime_{{ module.id }}');
+            var timeInSeconds = {{ module.operating_time }}; // Get seconds from Twig
+            var timeInHours = timeInSeconds / 3600;
+
+            if (currentDisplay.includes('Seconds')) {
+                timeCell.textContent = timeInHours.toFixed(2); // Display hours with 2 decimal places
+            } else {
+                timeCell.textContent = timeInSeconds; // Display seconds
+            }
+        {% endfor %}
+
+        // Toggle the label text
+        label.textContent = (currentDisplay.includes('Seconds')) ? "Operating Time (Hours)" : "Operating Time (Seconds)";
+    }
+</script>
 {% endblock %}

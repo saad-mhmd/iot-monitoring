@@ -25,3 +25,9 @@ echo $twig->render('module.twig', [
     'values' => $values
 ]);
 ?>
+
+
+
+<!-- module.php: This file handles the individual module view. It retrieves data for a specific module
+(based on the id parameter) from both modules and module_data tables. It then renders the module.twig
+template, which displays a line chart visualizing the module's data over time. -->

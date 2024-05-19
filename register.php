@@ -22,3 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 echo $twig->render('register.twig');
 ?>
+
+
+<!-- register.php: This file handles module registration. It processes the form data
+submitted from register.twig and inserts a new module entry into the modules table. -->
