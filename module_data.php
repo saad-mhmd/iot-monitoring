@@ -1,7 +1,7 @@
 <?php
 $pdo = new PDO('mysql:host=localhost;dbname=iot', 'root', '');
 
-// Fetch all module IDs
+// Fetch only online module IDs
 $modules_stmt = $pdo->query('SELECT id FROM modules WHERE status = "online"');
 $module_ids = $modules_stmt->fetchAll(PDO::FETCH_COLUMN);
 

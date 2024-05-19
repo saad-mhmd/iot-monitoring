@@ -4,7 +4,12 @@
 <div class="my-4">
     <h2 class="mb-4">Module Dashboard</h2>
     <a href="register.php" class="btn btn-primary mb-3">Register New Module</a>
-    <table class="table table-striped table-bordered">
+
+    <a href="module_data.php" class="btn btn-secondary mb-3">Generate Data</a>
+
+    <a href="module_malfunction.php" class="btn btn-warning mb-3" id="manualMalfunctionButton">Simulate Malfunctions (Manual)</a>
+
+    <table class="table table-striped table-bordered" id="moduleTable">
         <thead>
             <tr>
                 <th>Name</th>
@@ -13,7 +18,7 @@
                 <th>Current Value</th>
                 <th>
                     <span id="operatingTimeLabel">Operating Time (Seconds)</span>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleOperatingTimeDisplay()">sec/h</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleOperatingTimeDisplay()">Switch</button>
                 </th>
                 <th>Actions</th>
             </tr>
@@ -28,23 +33,24 @@
                     <span class="badge badge-success">Online</span>
                     {% elseif module.status == 'offline' %}
                     <span class="badge badge-secondary">Offline</span>
+                    {% elseif module.status == 'malfunction' %}
+                    <span class="badge badge-danger">Malfunction</span>
                     {% else %}
                     <span class="badge badge-danger">Error</span>
                     {% endif %}
                 </td>
                 <td>{{ module.value }}</td>
                 <td id="operatingTime_{{ module.id }}">{{ module.operating_time }}</td> 
-
                 <td>
-                <a href="module.php?id={{ module.id }}" class="btn btn-info btn-sm me-1">View</a>
-                <form method="POST" action="update_status.php" style="display: inline;">
-                <input type="hidden" name="id" value="{{ module.id }}">
-                <button type="submit" class="btn btn-sm btn-{% if module.status == 'online' %}danger{% else %}success{% endif %}">
-                {% if module.status == 'online' %}Offline{% else %}Online{% endif %}
-                </button>
-                </form>
+                    <a href="module.php?id={{ module.id }}" class="btn btn-info btn-sm me-1">View</a>
+                    <form method="POST" action="update_status.php" style="display: inline;">
+                        <input type="hidden" name="id" value="{{ module.id }}">
+                        <button type="submit" class="btn btn-sm btn-{% if module.status == 'online' %}danger{% else %}success{% endif %}">
+                            {% if module.status == 'online' %}Offline{% else %}Online{% endif %}
+                        </button>
+                    </form>
+                    <a href="module_edit.php?id={{ module.id }}" class="btn btn-warning btn-sm ms-1">Edit</a> 
                 </td>
-
             </tr>
             {% endfor %}
         </tbody>
@@ -71,5 +77,66 @@
         // Toggle the label text
         label.textContent = (currentDisplay.includes('Seconds')) ? "Operating Time (Hours)" : "Operating Time (Seconds)";
     }
+
+
+    // Function to trigger the malfunction script and update the table
+    function triggerMalfunction() {
+        // AJAX request to module_malfunction.php
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var modules = JSON.parse(this.responseText);
+                updateModuleTable(modules);
+            }
+        };
+        xhttp.open("GET", "module_malfunction.php", true);
+        xhttp.send();
+    }
+
+    // Function to update the module table with new data
+    function updateModuleTable(modules) {
+        var tbody = document.querySelector('#moduleTable tbody'); // Get the table body
+        tbody.innerHTML = ''; // Clear the existing table rows
+
+        modules.forEach(function(module) {
+            // Create a new row for each module and add it to the table body
+            var row = `
+                <tr>
+                    <td>${module.name}</td>
+                    <td>${module.type}</td>
+                    <td>
+                        ${module.status === 'online' ? '<span class="badge badge-success">Online</span>' :
+                         module.status === 'offline' ? '<span class="badge badge-secondary">Offline</span>' :
+                         module.status === 'malfunction' ? '<span class="badge badge-danger">Malfunction</span>' :
+                         '<span class="badge badge-danger">Error</span>'}
+                    </td>
+                    <td>${module.value}</td>
+                    <td id="operatingTime_${module.id}">${module.operating_time}</td>
+                    <td>
+                        <a href="module.php?id=${module.id}" class="btn btn-info btn-sm me-1">View</a>
+                        <form method="POST" action="update_status.php" style="display: inline;">
+                            <input type="hidden" name="id" value="${module.id}">
+                            <button type="submit" class="btn btn-sm btn-${module.status === 'online' ? 'danger' : 'success'}">
+                                ${module.status === 'online' ? 'Offline' : 'Online'}
+                            </button>
+                        </form>
+                        <a href="module_edit.php?id=${module.id}" class="btn btn-warning btn-sm ms-1">Edit</a> 
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row; 
+        });
+    }
+
+    // Set up automatic triggering every 20 seconds
+    var malfunctionInterval = setInterval(triggerMalfunction, 5000); 
+
+    // Attach an event listener to the manual button
+    document.getElementById('manualMalfunctionButton').addEventListener('click', function(event){
+        event.preventDefault(); // Prevent default link behavior
+        triggerMalfunction(); // Call the AJAX function to update the table
+    });
+
+
 </script>
 {% endblock %}
