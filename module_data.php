@@ -2,7 +2,7 @@
 $pdo = new PDO('mysql:host=localhost;dbname=iot', 'root', '');
 
 // Fetch all module IDs
-$modules_stmt = $pdo->query('SELECT id FROM modules');
+$modules_stmt = $pdo->query('SELECT id FROM modules WHERE status = "online"');
 $module_ids = $modules_stmt->fetchAll(PDO::FETCH_COLUMN);
 
 foreach ($module_ids as $module_id) {
@@ -37,11 +37,28 @@ foreach ($module_ids as $module_id) {
 // Set the default refresh interval to 5 seconds if not specified in the URL
 $refreshInterval = isset($_GET['refresh']) ? (int)$_GET['refresh'] : 5; 
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
     <title>Module Data Update</title>
     <script>
+
+        let timeLeft = <?php echo $refreshInterval; ?>; // Initialize with PHP value
+
+        function countdown() {
+            const timerElement = document.getElementById("timer");
+            timerElement.innerHTML = "Data will refresh in: " + timeLeft + " seconds";
+            timeLeft -= 1; 
+
+            if (timeLeft < 0) {
+                timeLeft = <?php echo $refreshInterval; ?>; // Reset the timer 
+            }
+        }
+
+        // Call countdown() every second
+        setInterval(countdown, 1000);
+
         function setRefreshInterval(seconds) {
             // Redirect to the same page with the new refresh interval
             window.location.href = "module_data.php?refresh=" + seconds;
@@ -50,6 +67,8 @@ $refreshInterval = isset($_GET['refresh']) ? (int)$_GET['refresh'] : 5;
 </head>
 <body>
     <h1>Data Update Frequency</h1>
+
+    <div id="timer"></div>
 
     <button onclick="setRefreshInterval(5)">5 Seconds</button>
     <button onclick="setRefreshInterval(10)">10 Seconds</button>
