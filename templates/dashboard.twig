@@ -112,43 +112,43 @@
         xhttp.send();
     }
 
-    // Function to update the module table with new data
-    function updateModuleTable(modules) {
-        var tbody = document.querySelector('#moduleTable tbody'); // Get the table body
-        tbody.innerHTML = ''; // Clear the existing table rows
+// Function to update the module table with new data
+function updateModuleTable(modules) {
+    var tbody = document.querySelector('#moduleTable tbody'); 
+    tbody.innerHTML = ''; 
 
-        modules.forEach(function(module) {
-            // Create a new row for each module and add it to the table body
-            var row = `
-                <tr>
-                    <td>${module.name}</td>
-                    <td>${module.type}</td>
-                    <td>
-                        ${module.status === 'online' ? '<span class="badge badge-success">Online</span>' :
-                         module.status === 'offline' ? '<span class="badge badge-secondary">Offline</span>' :
-                         module.status === 'malfunction' ? '<span class="badge badge-danger">Malfunction</span>' :
-                         '<span class="badge badge-danger">Error</span>'}
-                    </td>
-                    <td>${module.value}</td>
-                    <td>${module.total_data}</td>
-                    <td id="operatingTime_${module.id}">${module.operating_time}</td>
-                    <td>
-                        <a href="module.php?id=${module.id}" class="btn btn-info btn-sm me-1">View</a>
-                        <form method="POST" action="update_status.php" style="display: inline;">
-                            <input type="hidden" name="id" value="${module.id}">
-                            <button type="submit" class="btn btn-sm btn-${module.status === 'online' ? 'danger' : 'success'}">
-                                ${module.status === 'online' ? 'Offline' : 'Online'}
-                            </button>
-                        </form>
-                        <a href="module_edit.php?id=${module.id}" class="btn btn-warning btn-sm ms-1">Edit</a> 
-                    </td>
-                </tr>
-            `;
-            tbody.innerHTML += row; 
-        });
+    modules.forEach(function(module) {
+        // Create a new row for each module and add it to the table body
+        var row = `
+            <tr>
+                <td>${module.name}</td>
+                <td>${module.type}</td>
+                <td>
+                    ${module.status === 'online' ? '<span class="badge badge-success">Online</span>' :
+                     module.status === 'offline' ? '<span class="badge badge-secondary">Offline</span>' :
+                     module.status === 'malfunction' ? '<span class="badge badge-danger">Malfunction</span>' :
+                     '<span class="badge badge-danger">Error</span>'}
+                </td>
+                <td>${module.value}</td>
+                <td>${module.total_data}</td>
+                <td id="operatingTime_${module.id}">${module.operating_time}</td>
+                <td>
+                    <a href="module.php?id=${module.id}" class="btn btn-info btn-sm me-1">View</a>
+                    <form method="POST" action="update_status.php" style="display: inline;">
+                        <input type="hidden" name="id" value="${module.id}">
+                        <button type="submit" class="btn btn-sm btn-${module.status === 'online' ? 'danger' : 'success'}">
+                            ${module.status === 'online' ? 'Offline' : 'Online'}
+                        </button>
+                    </form>
+                    <a href="module_edit.php?id=${module.id}" class="btn btn-warning btn-sm ms-1">Edit</a> 
+                </td>
+            </tr>
+        `;
+        tbody.innerHTML += row; 
+    });
 
-        toggleOperatingTimeDisplay();
-    }
+    updateOperatingTimeCells(); // Call this to update cells with the correct format
+}
 
     // Set up automatic triggering every 5 seconds
     var malfunctionInterval = setInterval(triggerMalfunction, 5000); 
