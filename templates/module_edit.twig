@@ -1,0 +1,19 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+<div class="my-4">
+    <h2>Edit Module</h2>
+    
+    <form method="POST" action="module_edit.php?id={{ module.id }}"> 
+        <div class="form-group mb-2">
+            <label for="name">Name:</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ module.name }}" required>
+        </div>
+        <div class="form-group mb-3">
+            <label for="type">Type:</label>
+            <input type="text" class="form-control" id="type" name="type" value="{{ module.type }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+</div>
+{% endblock %}

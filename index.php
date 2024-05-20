@@ -5,7 +5,14 @@ $loader = new \Twig\Loader\FilesystemLoader('templates');
 $twig = new \Twig\Environment($loader);
 
 $pdo = new PDO('mysql:host=localhost;dbname=iot', 'root', '');
-$stmt = $pdo->query('SELECT * FROM modules');
+
+// Fetch module data and total data received for each module
+$stmt = $pdo->query('
+    SELECT m.*, COUNT(md.id) AS total_data
+    FROM modules m
+    LEFT JOIN module_data md ON m.id = md.module_id
+    GROUP BY m.id
+');
 $modules = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 echo $twig->render('dashboard.twig', ['modules' => $modules]);

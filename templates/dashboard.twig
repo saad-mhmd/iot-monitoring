@@ -5,9 +5,9 @@
     <h2 class="mb-4">Module Dashboard</h2>
     <a href="register.php" class="btn btn-primary mb-3">Register New Module</a>
 
-    <a href="module_data.php" class="btn btn-secondary mb-3">Generate Data</a>
+    <a href="module_data.php" class="btn btn-secondary mb-3" target="_blank">Generate Data</a>
 
-    <a href="module_malfunction.php" class="btn btn-warning mb-3" id="manualMalfunctionButton">Simulate Malfunctions (Manual)</a>
+    <a href="module_malfunction.php" class="btn btn-warning mb-3" id="manualMalfunctionButton">Simulate Malfunctions</a>
 
     <table class="table table-striped table-bordered" id="moduleTable">
         <thead>
@@ -16,8 +16,9 @@
                 <th>Type</th>
                 <th>Status</th>
                 <th>Current Value</th>
+                <th>Total Data Received</th>
                 <th>
-                    <span id="operatingTimeLabel">Operating Time (Seconds)</span>
+                    <span id="operatingTimeLabel">Operating Time (s)</span>
                     <button class="btn btn-sm btn-outline-secondary" onclick="toggleOperatingTimeDisplay()">Switch</button>
                 </th>
                 <th>Actions</th>
@@ -40,6 +41,7 @@
                     {% endif %}
                 </td>
                 <td>{{ module.value }}</td>
+                <td>{{ module.total_data }}</td>
                 <td id="operatingTime_{{ module.id }}">{{ module.operating_time }}</td> 
                 <td>
                     <a href="module.php?id={{ module.id }}" class="btn btn-info btn-sm me-1">View</a>
@@ -58,26 +60,43 @@
 </div>
 
 <script>
+    // Variable to store the current time format
+    var currentTimeFormat = 's'; // Default to seconds
+
     function toggleOperatingTimeDisplay() {
         var label = document.getElementById('operatingTimeLabel');
-        var currentDisplay = label.textContent;
+        
+        if (currentTimeFormat === 's') {
+            currentTimeFormat = 'min';
+        } else if (currentTimeFormat === 'min') {
+            currentTimeFormat = 'h';
+        } else {
+            currentTimeFormat = 's';
+        }
 
-        {% for module in modules %}
-            var timeCell = document.getElementById('operatingTime_{{ module.id }}');
-            var timeInSeconds = {{ module.operating_time }}; // Get seconds from Twig
-            var timeInHours = timeInSeconds / 3600;
+        label.textContent = 'Operating Time (' + currentTimeFormat + ')';
 
-            if (currentDisplay.includes('Seconds')) {
-                timeCell.textContent = timeInHours.toFixed(2); // Display hours with 2 decimal places
-            } else {
-                timeCell.textContent = timeInSeconds; // Display seconds
-            }
-        {% endfor %}
-
-        // Toggle the label text
-        label.textContent = (currentDisplay.includes('Seconds')) ? "Operating Time (Hours)" : "Operating Time (Seconds)";
+        // Update the table cells to reflect the new format
+        updateOperatingTimeCells(); 
     }
 
+    // Function to update the operating time cells based on currentTimeFormat
+    function updateOperatingTimeCells() {
+        {% for module in modules %}
+            var timeCell = document.getElementById('operatingTime_{{ module.id }}');
+            var timeInSeconds = {{ module.operating_time }};
+            var timeInMinutes = timeInSeconds / 60;
+            var timeInHours = timeInSeconds / 3600;
+
+            if (currentTimeFormat === 's') {
+                timeCell.textContent = timeInSeconds;
+            } else if (currentTimeFormat === 'min') {
+                timeCell.textContent = timeInMinutes.toFixed(2);
+            } else {
+                timeCell.textContent = timeInHours.toFixed(2);
+            }
+        {% endfor %}
+    }
 
     // Function to trigger the malfunction script and update the table
     function triggerMalfunction() {
@@ -111,6 +130,7 @@
                          '<span class="badge badge-danger">Error</span>'}
                     </td>
                     <td>${module.value}</td>
+                    <td>${module.total_data}</td>
                     <td id="operatingTime_${module.id}">${module.operating_time}</td>
                     <td>
                         <a href="module.php?id=${module.id}" class="btn btn-info btn-sm me-1">View</a>
@@ -126,9 +146,11 @@
             `;
             tbody.innerHTML += row; 
         });
+
+        toggleOperatingTimeDisplay();
     }
 
-    // Set up automatic triggering every 20 seconds
+    // Set up automatic triggering every 5 seconds
     var malfunctionInterval = setInterval(triggerMalfunction, 5000); 
 
     // Attach an event listener to the manual button
