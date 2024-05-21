@@ -47,8 +47,8 @@
                     <a href="module.php?id={{ module.id }}" class="btn btn-info btn-sm me-1">View</a>
                     <form method="POST" action="update_status.php" style="display: inline;">
                         <input type="hidden" name="id" value="{{ module.id }}">
-                        <button type="submit" class="btn btn-sm btn-{% if module.status == 'online' %}danger{% else %}success{% endif %}">
-                            {% if module.status == 'online' %}Offline{% else %}Online{% endif %}
+                        <button type="submit" class="btn btn-sm btn-{% if module.status == 'online' %}secondary{% else %}success{% endif %}">
+                            {% if module.status == 'online' %}OFF{% else %}ON{% endif %}
                         </button>
                     </form>
                     <a href="module_edit.php?id={{ module.id }}" class="btn btn-warning btn-sm ms-1">Edit</a> 
@@ -136,8 +136,8 @@ function updateModuleTable(modules) {
                     <a href="module.php?id=${module.id}" class="btn btn-info btn-sm me-1">View</a>
                     <form method="POST" action="update_status.php" style="display: inline;">
                         <input type="hidden" name="id" value="${module.id}">
-                        <button type="submit" class="btn btn-sm btn-${module.status === 'online' ? 'danger' : 'success'}">
-                            ${module.status === 'online' ? 'Offline' : 'Online'}
+                        <button type="submit" class="btn btn-sm btn-${module.status === 'online' ? 'secondary' : 'success'}">
+                            ${module.status === 'online' ? 'OFF' : 'ON'}
                         </button>
                     </form>
                     <a href="module_edit.php?id=${module.id}" class="btn btn-warning btn-sm ms-1">Edit</a> 

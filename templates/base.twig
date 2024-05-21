@@ -1,23 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <title>{% block title %}{% endblock %}</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IoT Monitoring Dashboard</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/date-fns@2.28.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
-    
+
 
 </head>
 <body>
+
+    <div id="notificationContainer" class="alert alert-warning alert-dismissible fade show" role="alert" style="position: fixed; top: 10px; right: 10px; display: none;">
+        <span id="notificationMessage"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <div class="container">
         {% block content %}{% endblock %}
     </div>
+
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <span id="footerStats">Loading module stats...</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        // Function to check for notifications
+        function checkForNotifications() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    var response = JSON.parse(this.responseText);
+                    if (response.message) {
+                        displayNotification(response.message);
+                    }
+                }
+            };
+            xhttp.open("GET", "notifications.php", true);
+            xhttp.send();
+        }
+
+        // Function to display the notification
+        function displayNotification(message) {
+            document.getElementById('notificationMessage').textContent = message;
+            document.getElementById('notificationContainer').style.display = 'block';
+        }
+
+        // Check for notifications every 5 seconds
+        setInterval(checkForNotifications, 5000);
+
+        // Function to update the footer stats
+        function updateFooterStats() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    var statusCounts = JSON.parse(this.responseText);
+
+                    // Create styled spans for each status 
+                    var onlineSpan = `<span class="badge badge-success badge-pill">Online: ${statusCounts.online}</span>`;
+                    var offlineSpan = `<span class="badge badge-secondary badge-pill">Offline: ${statusCounts.offline}</span>`;
+                    var malfunctionSpan = `<span class="badge badge-danger badge-pill">Malfunction: ${statusCounts.malfunction}</span>`;
+                    var totalSpan = `<span class="badge badge-info badge-pill">Total: ${statusCounts.total}</span>`; // New span for total
+
+                    document.getElementById('footerStats').innerHTML = onlineSpan + ' - ' + offlineSpan + ' - ' + malfunctionSpan + ' - ' + totalSpan;
+                }
+            };
+            xhttp.open("GET", "footer_stats.php", true);
+            xhttp.send();
+        }
+
+        // Update footer stats on page load and every 10 seconds
+        updateFooterStats(); 
+        setInterval(updateFooterStats, 10000);
+
+
+    </script>
+
+    <style>
+        /* Custom CSS to make badges bigger */
+        .badge-pill {
+            font-size: 0.9rem; /* Adjust font size as needed */
+            padding: 0.4em 3.5em; /* Adjust padding as needed */
+        }
+    </style>
+
 </body>
 </html>
