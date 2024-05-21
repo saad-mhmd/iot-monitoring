@@ -27,7 +27,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
-    <div class="container">
+    <div class="container main-content">
         {% block content %}{% endblock %}
     </div>
 
@@ -111,6 +111,12 @@
             left: 0;
             width: 100%; 
         }
+
+        /* Add padding to the bottom of the main content */
+        .main-content {
+            padding-bottom: 5rem;  /* Adjust this value as needed */
+        }
+        
     </style>
 
 </body>
