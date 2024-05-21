@@ -16,7 +16,7 @@
                 <th>Type</th>
                 <th>Status</th>
                 <th>Current Value</th>
-                <th>Total Data Received</th>
+                <th>Total Data</th>
                 <th>
                     <span id="operatingTimeLabel">Operating Time (s)</span>
                     <button class="btn btn-sm btn-outline-secondary" onclick="toggleOperatingTimeDisplay()">Switch</button>
@@ -29,7 +29,7 @@
             <tr>
                 <td>{{ module.name }}</td>
                 <td>{{ module.type }}</td>
-                <td>
+                <td class="text-center">
                     {% if module.status == 'online' %}
                     <span class="badge badge-success">Online</span>
                     {% elseif module.status == 'offline' %}
@@ -51,7 +51,8 @@
                             {% if module.status == 'online' %}OFF{% else %}ON{% endif %}
                         </button>
                     </form>
-                    <a href="module_edit.php?id={{ module.id }}" class="btn btn-warning btn-sm ms-1">Edit</a> 
+                    <a href="module_edit.php?id={{ module.id }}" class="btn btn-warning btn-sm ms-1">Edit</a>
+                    <button type="button" class="btn btn-danger btn-sm ms-1" onclick="confirmDelete({{ module.id }})">Delete</button>
                 </td>
             </tr>
             {% endfor %}
@@ -112,37 +113,38 @@
         xhttp.send();
     }
 
-// Function to update the module table with new data
-function updateModuleTable(modules) {
-    var tbody = document.querySelector('#moduleTable tbody'); 
-    tbody.innerHTML = ''; 
+    // Function to update the module table with new data
+    function updateModuleTable(modules) {
+        var tbody = document.querySelector('#moduleTable tbody'); 
+        tbody.innerHTML = ''; 
 
-    modules.forEach(function(module) {
-        // Create a new row for each module and add it to the table body
-        var row = `
-            <tr>
-                <td>${module.name}</td>
-                <td>${module.type}</td>
-                <td>
-                    ${module.status === 'online' ? '<span class="badge badge-success">Online</span>' :
-                     module.status === 'offline' ? '<span class="badge badge-secondary">Offline</span>' :
-                     module.status === 'malfunction' ? '<span class="badge badge-danger">Malfunction</span>' :
-                     '<span class="badge badge-danger">Error</span>'}
-                </td>
-                <td>${module.value}</td>
-                <td>${module.total_data}</td>
-                <td id="operatingTime_${module.id}">${module.operating_time}</td>
-                <td>
-                    <a href="module.php?id=${module.id}" class="btn btn-info btn-sm me-1">View</a>
-                    <form method="POST" action="update_status.php" style="display: inline;">
-                        <input type="hidden" name="id" value="${module.id}">
-                        <button type="submit" class="btn btn-sm btn-${module.status === 'online' ? 'secondary' : 'success'}">
-                            ${module.status === 'online' ? 'OFF' : 'ON'}
-                        </button>
-                    </form>
-                    <a href="module_edit.php?id=${module.id}" class="btn btn-warning btn-sm ms-1">Edit</a> 
-                </td>
-            </tr>
+        modules.forEach(function(module) {
+            // Create a new row for each module and add it to the table body
+            var row = `
+                <tr>
+                    <td>${module.name}</td>
+                    <td>${module.type}</td>
+                    <td>
+                        ${module.status === 'online' ? '<span class="badge badge-success">Online</span>' :
+                        module.status === 'offline' ? '<span class="badge badge-secondary">Offline</span>' :
+                        module.status === 'malfunction' ? '<span class="badge badge-danger">Malfunction</span>' :
+                        '<span class="badge badge-danger">Error</span>'}
+                    </td>
+                    <td>${module.value}</td>
+                    <td>${module.total_data}</td>
+                    <td id="operatingTime_${module.id}">${module.operating_time}</td>
+                    <td>
+                        <a href="module.php?id=${module.id}" class="btn btn-info btn-sm me-1">View</a>
+                        <form method="POST" action="update_status.php" style="display: inline;">
+                            <input type="hidden" name="id" value="${module.id}">
+                            <button type="submit" class="btn btn-sm btn-${module.status === 'online' ? 'secondary' : 'success'}">
+                                ${module.status === 'online' ? 'OFF' : 'ON'}
+                            </button>
+                        </form>
+                        <a href="module_edit.php?id=${module.id}" class="btn btn-warning btn-sm ms-1">Edit</a>
+                        <button type="button" class="btn btn-danger btn-sm ms-1" onclick="confirmDelete(${module.id})">Delete</button> <div class="form-check form-switch mb-3">
+                    </td>
+                </tr>
         `;
         tbody.innerHTML += row; 
     });
@@ -158,6 +160,14 @@ function updateModuleTable(modules) {
         event.preventDefault(); // Prevent default link behavior
         triggerMalfunction(); // Call the AJAX function to update the table
     });
+
+    // Function to confirm delete
+    function confirmDelete(moduleId) {
+        if (confirm('Are you sure you want to delete this module? This action cannot be undone.')) {
+            // User confirmed, redirect to delete script
+            window.location.href = 'delete_module.php?id=' + moduleId;
+        }
+    }
 
 
 </script>

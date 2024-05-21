@@ -3,7 +3,26 @@
 {% block content %}
 <div class="my-4">
     <h2 class="mb-4">{{ module.name }} - {{ module.type }}</h2>
-    <canvas id="moduleChart" width="400" height="200"></canvas>
+
+    <div>
+        <label for="timeRangeSelect">Time Range:</label>
+        <select id="timeRangeSelect" onchange="updateTimeRange()">
+            <option value="5min" {% if timeRange == '5min' %}selected{% endif %}>5 minutes</option>
+            <option value="30min" {% if timeRange == '30min' %}selected{% endif %}>30 minutes</option>
+            <option value="1hour" {% if timeRange == '1hour' %}selected{% endif %}>1 hour</option>
+            <option value="24hour" {% if timeRange == '24hour' %}selected{% endif %}>24 hours</option>
+            <option value="all" {% if timeRange == 'all' %}selected{% endif %}>All</option>
+        </select>
+    </div>
+
+
+    <div class="chart-panel">
+        <canvas id="moduleChart" width="400" height="200"></canvas>
+    </div>
+
+    <a href="index.php" class="btn btn-secondary mt-3">Back</a>
+
+
     <script>
         const timestamps = {{ timestamps|raw }};
         const values = {{ values|raw }};
@@ -28,14 +47,66 @@
                         time: {
                             unit: 'minute'
                         },
+                        ticks: {
+                            color: 'white' // Set x-axis tick color to white
+                        }
                        
                     },
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        ticks: {
+                            color: 'white' // Set y-axis tick color to white
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'white' // Set legend label color to white 
+                        }
                     }
                 }
             }
         });
+
+        // Function to update the chart data
+        function updateChartData() {
+            var selectedTimeRange = document.getElementById('timeRangeSelect').value;
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    var newData = JSON.parse(this.responseText);
+
+                    // Update the chart with new data
+                    moduleChart.data.labels = newData.map(item => item.timestamp);
+                    moduleChart.data.datasets[0].data = newData.map(item => item.value);
+                    moduleChart.update();
+                }
+            };
+            xhttp.open("GET", "get_module_data.php?id={{ module.id }}&time_range=" + selectedTimeRange, true);
+            xhttp.send();
+        }
+
+        // Function to update the time range (modified)
+        function updateTimeRange() {
+            var selectedTimeRange = document.getElementById('timeRangeSelect').value;
+            // No need to reload the page, just update the chart data
+            updateChartData(); 
+        }
+
+        // Update chart data every 5 seconds
+        setInterval(updateChartData, 5000);
+                
     </script>
 </div>
+
+<style>
+    /* Style for the chart panel */
+    .chart-panel {
+        background-color: rgba(0, 0, 0, 0.6); /* Black with 60% opacity */
+        padding: 20px; /* Adjust padding as needed */
+        border-radius: 10px; /* Add rounded corners (optional) */
+    }
+</style>
+
 {% endblock %}
