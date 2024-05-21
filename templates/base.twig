@@ -13,8 +13,15 @@
 
 
 </head>
-<body>
-
+<body style="
+ background-repeat: no-repeat;
+ 
+  background-size: cover;
+  background-image: url(https://switchupdigital.com/wp-content/uploads/2021/07/globe-technology-business-with-gradient-wallpaper-2048x1152.jpg);
+  ">
+  
+  
+  
     <div id="notificationContainer" class="alert alert-warning alert-dismissible fade show" role="alert" style="position: fixed; top: 10px; right: 10px; display: none;">
         <span id="notificationMessage"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -95,6 +102,14 @@
         .badge-pill {
             font-size: 0.9rem; /* Adjust font size as needed */
             padding: 0.4em 3.5em; /* Adjust padding as needed */
+        }
+
+        /* Styles to make footer sticky to the screen bottom */
+        .footer {
+            position: fixed; 
+            bottom: 0; 
+            left: 0;
+            width: 100%; 
         }
     </style>
 
